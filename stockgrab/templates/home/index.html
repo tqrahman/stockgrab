@@ -2,5 +2,13 @@
 {% extends "base.html" %}
 
     {% block body_block %}
-
+        <div class="container">
+            <div class="jumbotron">
+                <form method='post' enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ stock_form.as_p }}
+                    <button type="submit" class="btn btn-primary">GRAB STOCK</button>
+                </form>
+            </div>
+        </div>
     {% endblock %}
