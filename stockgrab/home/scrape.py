@@ -3,9 +3,11 @@
 # Imports
 import datetime
 import time
-import calendar
+import json
+# import calendar
 import requests
 from bs4 import BeautifulSoup 
+from pandas import DataFrame
 
 def convert_to_unix_time(completeDate):
     '''
@@ -23,9 +25,7 @@ def convert_to_unix_time(completeDate):
     return time.mktime(datetime.datetime.strptime(completeDate, "%m/%d/%y").timetuple())
 
 
-
-
-def get_query(tick,start_date,end_date,interval):
+def get_query(tick, start_date, end_date, interval):
     '''
     Creates the query given a tick symbol, start_date, end_date, and interval
 
@@ -45,57 +45,39 @@ def get_query(tick,start_date,end_date,interval):
     return url
 
 
-# def get_data(query):
-#     '''
-#     Scrapes the site and returns the data collected.
+def get_data(query):
+    '''
+    Scrapes the site and returns the data collected.
 
-#     Parameters:
-#     -----------
-#     query: a string that represents the site to scrap from
+    Parameters:
+    -----------
+    query: a string that represents the site to scrap from
 
-#     Return:
-#     -------
-#     A csv file with the data requested by the user
-#     '''
-# userAgent = ""
-# headers = {"User-Agent": userAgent}
-# page = requests.get(url, headers=headers)
-# soup = BeautifulSoup(page.content)
+    Return:
+    -------
+    A csv file with the data requested by the user
+    '''
 
-# historicalPricesTable = soup.find("table", attrs={"data-test": "historical-prices"})
+    # Create the request
+    response = requests.get(query, headers={"user-agent": ""})
+    json_stock_data = json.loads(response.text)
 
-# allStockData = []
-# #find all the column names, find "thead", then find all "th"
-# stockRow = []
-# for header in historicalPricesTable.thead.find_all("th"):
-#     stockRow.append(header.text)
-# allStockData.append(stockRow)
+    # Extract the data from the json object
+    timestamps = json_stock_data["chart"]["result"][0]["timestamp"]
+    open = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["open"]
+    high = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["high"]
+    low = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["low"]
+    close = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["close"]
+    adjustedClose = json_stock_data["chart"]["result"][0]["indicators"]["adjclose"][0]["adjclose"]
+    volume = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["volume"]
 
-# #find all the data, find "tbody", then find all "tr", for each row find all "td"
-# for row in historicalPricesTable.tbody.find_all("tr"):
-#     stockRow = []
-#     for data in row.find_all("td"):
-#         stockRow.append(data.text)
-#     allStockData.append(stockRow)
+    return [timestamps, open, high, low, close, adjustedClose, volume]
 
-# #grab the column names, then the data
-
-# #first obtain the element containing all the data in the table
-# #"table", data-test="historical-prices"
-# historicalPricesTable = soup.find("table", attrs={"data-test": "historical-prices"})
-
-# #find all the column names, find "thead", then find all "th"
-# for header in historicalPricesTable.thead.find_all("th"):
-#     print(header.text, end="  ")
-
-# #find all the data, find "tbody", then find all "tr", for each row find all "td"
-# for row in historicalPricesTable.tbody.find_all("tr"):
-#     print()
-#     for data in row.find_all("td"):
-#         print(data.text, end="  ")
-
-# import csv
-
-# with open("Query.csv", "w") as f:
-#     stockWriter = csv.writer(f)
-#     stockWriter.writerows(allStockData)
+def convert_to_dataframe(list_data):
+    '''
+    Converts data into a pandas dataframe
+    
+    '''
+    data = DataFrame(list_data).T
+    data.columns = ['timestamps', 'open', 'close', 'high', 'low', 'adjustedClose', 'volume']
+    return data
