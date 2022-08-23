@@ -6,7 +6,7 @@ import time
 import json
 # import calendar
 import requests
-from bs4 import BeautifulSoup 
+# from bs4 import BeautifulSoup 
 from pandas import DataFrame
 
 def convert_to_unix_time(completeDate):
@@ -22,7 +22,7 @@ def convert_to_unix_time(completeDate):
     A datetime in unix format
     '''
 
-    return time.mktime(datetime.datetime.strptime(completeDate, "%m/%d/%y").timetuple())
+    return time.mktime(datetime.datetime.strptime(completeDate, "%m/%d/%Y").timetuple())
 
 
 def get_query(tick, start_date, end_date, interval):
@@ -76,7 +76,7 @@ def get_data(query):
 def convert_to_dataframe(list_data):
     '''
     Converts data into a pandas dataframe
-    
+
     '''
     data = DataFrame(list_data).T
     data.columns = ['timestamps', 'open', 'close', 'high', 'low', 'adjustedClose', 'volume']
