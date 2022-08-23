@@ -5,9 +5,9 @@ class StockForm(forms.Form):
 
     # Creating a list of possible interval choices
     interval_choices = [
-        ('daily', 'Daily'),
-        ('weekly', 'Weekly'),
-        ('monthly', 'Monthly')
+        ('1d', 'Daily'),
+        ('1wk', 'Weekly'),
+        ('1mo', 'Monthly')
     ]
 
     tick = forms.CharField(label='Tick Symbol', required=True)
