@@ -2,11 +2,9 @@
 # added changes will be added in time.
 # Imports
 import datetime
-import time
+import time 
 import json
-# import calendar
 import requests
-# from bs4 import BeautifulSoup 
 from pandas import DataFrame
 
 def convert_to_unix_time(completeDate):
@@ -22,7 +20,7 @@ def convert_to_unix_time(completeDate):
     A datetime in unix format
     '''
 
-    return time.mktime(datetime.datetime.strptime(completeDate, "%m/%d/%Y").timetuple())
+    return int(time.mktime(datetime.datetime.strptime(completeDate, "%m/%d/%Y").timetuple()))
 
 
 def get_query(tick, start_date, end_date, interval):
@@ -41,28 +39,25 @@ def get_query(tick, start_date, end_date, interval):
     A string that will be used to scrape the site
     '''
 
-    url = f"https://finance.yahoo.com/quote/{tick}/history?period1=print{start_date}&period2={end_date}&interval={interval}&filter=history&frequency=1d&includeAdjustedClose=true"
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{tick}?symbol={tick}&period1={start_date}&period2={end_date}&interval={interval}"
     return url
+
 
 
 def get_data(query):
     '''
     Scrapes the site and returns the data collected.
-
     Parameters:
     -----------
     query: a string that represents the site to scrap from
-
     Return:
     -------
     A csv file with the data requested by the user
     '''
-
-    # Create the request
+ # Create the request
     response = requests.get(query, headers={"user-agent": ""})
     json_stock_data = json.loads(response.text)
-
-    # Extract the data from the json object
+ # Extract the data from the json object
     timestamps = json_stock_data["chart"]["result"][0]["timestamp"]
     open = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["open"]
     high = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["high"]
@@ -76,7 +71,6 @@ def get_data(query):
 def convert_to_dataframe(list_data):
     '''
     Converts data into a pandas dataframe
-
     '''
     data = DataFrame(list_data).T
     data.columns = ['timestamps', 'open', 'close', 'high', 'low', 'adjustedClose', 'volume']
