@@ -2,15 +2,7 @@
 from pickle import GLOBAL
 from django.shortcuts import render
 from .forms import StockForm
-from .scrape import *
-from .forms import *
-from bs4 import BeautifulSoup
-import json
-import requests
-from datetime import date
-
-
-
+from .scrape import convert_to_dataframe, convert_to_unix_time, get_query, get_data
 
 def home_page(request):
     '''
@@ -26,9 +18,7 @@ def home_page(request):
         #tick_read = requests.get(tick,headers={"User-Agent": ""} )
 
         # Extracting the start_date from input
-        start_date = request.POST['start_date']
-        start_date =convert_to_unix_time(start_date)
-        # start_date_read = requests.get(start_date,headers={"User-Agent": ""} )
+        start_date = convert_to_unix_time(request.POST['start_date'])
         
 
         # Extracting the end_date from input

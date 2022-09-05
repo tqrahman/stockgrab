@@ -23,9 +23,7 @@ def convert_to_unix_time(completeDate):
     return int(time.mktime(datetime.datetime.strptime(completeDate, "%m/%d/%Y").timetuple()))
 
 
-
-
-def get_query(tick,start_date,end_date,interval):
+def get_query(tick, start_date, end_date, interval):
     '''
     Creates the query given a tick symbol, start_date, end_date, and interval
 
