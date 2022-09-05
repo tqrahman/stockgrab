@@ -2,10 +2,10 @@
 # added changes will be added in time.
 # Imports
 import datetime
-import time
-import calendar
+import time 
+import json
 import requests
-from bs4 import BeautifulSoup 
+from pandas import DataFrame
 
 def convert_to_unix_time(completeDate):
     '''
@@ -20,7 +20,7 @@ def convert_to_unix_time(completeDate):
     A datetime in unix format
     '''
 
-    return time.mktime(datetime.datetime.strptime(completeDate, "%m/%d/%y").timetuple())
+    return int(time.mktime(datetime.datetime.strptime(completeDate, "%m/%d/%Y").timetuple()))
 
 
 
@@ -41,61 +41,39 @@ def get_query(tick,start_date,end_date,interval):
     A string that will be used to scrape the site
     '''
 
-    url = f"https://finance.yahoo.com/quote/{tick}/history?period1=print{start_date}&period2={end_date}&interval={interval}&filter=history&frequency=1d&includeAdjustedClose=true"
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{tick}?symbol={tick}&period1={start_date}&period2={end_date}&interval={interval}"
     return url
 
 
-# def get_data(query):
-#     '''
-#     Scrapes the site and returns the data collected.
 
-#     Parameters:
-#     -----------
-#     query: a string that represents the site to scrap from
+def get_data(query):
+    '''
+    Scrapes the site and returns the data collected.
+    Parameters:
+    -----------
+    query: a string that represents the site to scrap from
+    Return:
+    -------
+    A csv file with the data requested by the user
+    '''
+ # Create the request
+    response = requests.get(query, headers={"user-agent": ""})
+    json_stock_data = json.loads(response.text)
+ # Extract the data from the json object
+    timestamps = json_stock_data["chart"]["result"][0]["timestamp"]
+    open = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["open"]
+    high = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["high"]
+    low = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["low"]
+    close = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["close"]
+    adjustedClose = json_stock_data["chart"]["result"][0]["indicators"]["adjclose"][0]["adjclose"]
+    volume = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["volume"]
 
-#     Return:
-#     -------
-#     A csv file with the data requested by the user
-#     '''
-# userAgent = ""
-# headers = {"User-Agent": userAgent}
-# page = requests.get(url, headers=headers)
-# soup = BeautifulSoup(page.content)
+    return [timestamps, open, high, low, close, adjustedClose, volume]
 
-# historicalPricesTable = soup.find("table", attrs={"data-test": "historical-prices"})
-
-# allStockData = []
-# #find all the column names, find "thead", then find all "th"
-# stockRow = []
-# for header in historicalPricesTable.thead.find_all("th"):
-#     stockRow.append(header.text)
-# allStockData.append(stockRow)
-
-# #find all the data, find "tbody", then find all "tr", for each row find all "td"
-# for row in historicalPricesTable.tbody.find_all("tr"):
-#     stockRow = []
-#     for data in row.find_all("td"):
-#         stockRow.append(data.text)
-#     allStockData.append(stockRow)
-
-# #grab the column names, then the data
-
-# #first obtain the element containing all the data in the table
-# #"table", data-test="historical-prices"
-# historicalPricesTable = soup.find("table", attrs={"data-test": "historical-prices"})
-
-# #find all the column names, find "thead", then find all "th"
-# for header in historicalPricesTable.thead.find_all("th"):
-#     print(header.text, end="  ")
-
-# #find all the data, find "tbody", then find all "tr", for each row find all "td"
-# for row in historicalPricesTable.tbody.find_all("tr"):
-#     print()
-#     for data in row.find_all("td"):
-#         print(data.text, end="  ")
-
-# import csv
-
-# with open("Query.csv", "w") as f:
-#     stockWriter = csv.writer(f)
-#     stockWriter.writerows(allStockData)
+def convert_to_dataframe(list_data):
+    '''
+    Converts data into a pandas dataframe
+    '''
+    data = DataFrame(list_data).T
+    data.columns = ['timestamps', 'open', 'close', 'high', 'low', 'adjustedClose', 'volume']
+    return data
