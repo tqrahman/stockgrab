@@ -54,10 +54,12 @@ def get_data(query):
     -------
     A csv file with the data requested by the user
     '''
- # Create the request
+    
+    # Create the request
     response = requests.get(query, headers={"user-agent": ""})
     json_stock_data = json.loads(response.text)
- # Extract the data from the json object
+    
+    # Extract the data from the json object
     timestamps = json_stock_data["chart"]["result"][0]["timestamp"]
     open = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["open"]
     high = json_stock_data["chart"]["result"][0]["indicators"]["quote"][0]["high"]

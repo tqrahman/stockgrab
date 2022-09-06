@@ -1,7 +1,8 @@
 # Imports
 
-import gzip
-from http.client import HTTPResponse
+import csv
+from django.http import HttpResponse
+# from http.client import HTTPResponse
 from io import BytesIO
 from django.shortcuts import render
 import csv
@@ -44,18 +45,48 @@ def home_page(request):
         df = convert_to_dataframe(list_data) 
         # print(df.head())
 
-        # Download the data
-        # b = BytesIO()
-        # with gzip.open(b, 'wb') as f:
-        #     f.write(df.to_csv().encode())
-        # response = HTTPResponse(b.getvalue(), content_type='text/csv')
-        # response['Content-Disposition'] = 'attachment; filename="stockgrab_data.csv"'
+        # Download data
 
-        # response = HTTPResponse(open("uploads/something.txt", 'rb').read())
-        # response['Content-Type'] = 'text/plain'
-        # response['Content-Disposition'] = 'attachment; filename=DownloadedText.txt'
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="stockgrab_data.csv"'
+        
+        # writer = csv.writer(response, csv.excel)
+        # response.write(u'\ufeff'.encode('utf8'))
 
-        return render(request, 'home/results.html', context={'user_input':user_input})
+        # # 'timestamps', 'open', 'close', 'high', 'low', 'adjustedClose', 'volume'
+        # writer.writerow([
+        #     smart_str(u"timestamps"),
+        #     smart_str(u"open"),
+        #     smart_str(u"close"),
+        #     smart_str(u"high"),
+        #     smart_str(u"low"),
+        #     smart_str(u"adjustedClose"),
+        #     smart_str(u"volume"),
+	    # ])
+        # #get data from database or from text file....
+        # # events = event_services.get_events_by_year(year) #dummy function to fetch data
+        # for row in df:
+        #     writer.writerow([
+        #         smart_str(row.timestamps),
+        #         smart_str(row.open),
+        #         smart_str(row.close),
+        #         smart_str(row.high),
+        #         smart_str(row.low),
+        #         smart_str(row.adjustedClose),
+        #         smart_str(row.volume),
+        #     ])
+
+        df.to_csv(
+            path_or_buf=response,
+            sep=';',
+            index=False
+        )
+
+        # return render(request, 'home/results.html', context={
+        #     'user_input':user_input,
+        #     'file':response
+        # })
+        return response
     
     stock_form = StockForm()
 
