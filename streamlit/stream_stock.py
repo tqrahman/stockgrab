@@ -87,7 +87,7 @@ stream.table(df.head())
 
 csv = convert_df(df)
 stream.download_button(
-    "Export the Data", 
+    "EXPORT DATA", 
     csv,
     f"{selected_tick}_stock_data_{selected_start_date}-{selected_end_date}.csv",
     "text/csv",
