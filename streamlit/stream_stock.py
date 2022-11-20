@@ -49,7 +49,7 @@ with start_date:
 with end_date:
     selected_end_date = stream.date_input(
         'END DATE',
-        datetime.date.today()
+        datetime.date(2022, 10, 31)
     )
 
 with interval:
@@ -79,7 +79,7 @@ def convert_df(df):
 
 df = get_data()
 
-stream.table(df.head())
+stream.table(df.head(10))
 
 ###################
 ### EXPORT DATA ###
