@@ -100,12 +100,13 @@ stream.download_button(
 
 fig, ax = plt.subplots()
 ax.plot(df['Date'], df['AdjustedClose'])
-ax.grid()
 ax.set_title(f"{selected_tick} Adjusted Close Price")
 ax.set_xlabel("Date")
 ax.tick_params(axis='x', labelrotation = 45)
-ax.set_ylabel("Adjusted Close")
-
+ax.set_ylabel("Adjusted Close (USD$)")
+ax.grid(axis='y')
+for pos in ['right', 'top', 'left', 'bottom']:
+    plt.gca().spines[pos].set_visible(False)
 stream.pyplot(fig)
 
 
